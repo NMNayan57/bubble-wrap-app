@@ -360,6 +360,9 @@ def main():
         
         if run:
             cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                st.error("Camera not found. Please check your camera settings.")
+                return
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
             
