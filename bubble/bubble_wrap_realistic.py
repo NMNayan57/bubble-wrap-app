@@ -12,20 +12,30 @@ import random
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
-# Initialize Pygame for sound
-pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+# Initialize Pygame for sound (Render-safe)
+SOUND_ENABLED = True
+try:
+    pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+except pygame.error:
+    SOUND_ENABLED = False
+    print("⚠️ Audio device not found. Sounds disabled.")
 
 # Load sounds
 SOUND_FOLDER = "sounds"
 try:
-    TOUCH_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "touch_sound.wav"))
-    CRACK_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "crack_sound.wav"))
-    POP_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "pop_sound.wav"))
-    
-    # Set volumes
-    TOUCH_SOUND.set_volume(0.3)
-    CRACK_SOUND.set_volume(0.6)
-    POP_SOUND.set_volume(0.8)
+    if SOUND_ENABLED:
+        TOUCH_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "touch_sound.wav"))
+        CRACK_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "crack_sound.wav"))
+        POP_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "pop_sound.wav"))
+
+        # Set volumes
+        TOUCH_SOUND.set_volume(0.3)
+        CRACK_SOUND.set_volume(0.6)
+        POP_SOUND.set_volume(0.8)
+    else:
+        TOUCH_SOUND = None
+        CRACK_SOUND = None
+        POP_SOUND = None
 except:
     st.error("Please ensure sound files are in the 'sounds' folder!")
     TOUCH_SOUND = None
