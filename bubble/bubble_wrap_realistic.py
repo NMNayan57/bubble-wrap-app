@@ -91,8 +91,8 @@ class Bubble:
         self.pop_animation = 0
         self.last_interaction = 0
         self.highlight = False
-        self.crack_segments = []  # Store the 4 segments after cracking
-        
+        self.crack_segments = []
+
     def touch(self):
         """Handle touch interaction"""
         if self.state == BubbleState.UNPOPPED:
@@ -101,7 +101,6 @@ class Bubble:
             current_time = time.time()
             bubble_id = f"{self.x}_{self.y}"
             
-            # Play touch sound only if not recently touched
             if bubble_id not in st.session_state.last_touch_time or \
                current_time - st.session_state.last_touch_time[bubble_id] > 0.5:
                 if TOUCH_SOUND:
@@ -109,7 +108,7 @@ class Bubble:
                 st.session_state.last_touch_time[bubble_id] = current_time
             return True
         return False
-    
+
     def crack(self):
         """First stage - crack the bubble"""
         if self.state == BubbleState.TOUCHED:
@@ -122,7 +121,7 @@ class Bubble:
             self._create_crack_segments()
             return True
         return False
-    
+
     def pop(self):
         """Second stage - fully pop the bubble"""
         if self.state == BubbleState.CRACKED:
@@ -140,10 +139,9 @@ class Bubble:
                 POP_SOUND.play()
             return True
         return False
-    
+
     def _create_crack_segments(self):
         """Create 4 segments from crack lines"""
-        # Calculate crack endpoints
         self.crack_segments = []
         for i in range(4):
             angle = self.crack_angles[i] * math.pi / 180
@@ -154,13 +152,13 @@ class Bubble:
                 'end': (int(end_x), int(end_y)),
                 'offset': 0
             })
-    
+
     def release(self):
         """Release touch"""
         if self.state == BubbleState.TOUCHED:
             self.touch_scale = 1.0
             self.state = BubbleState.UNPOPPED
-    
+
     def draw(self, frame):
         """Draw bubble with realistic effects"""
         if self.state == BubbleState.UNPOPPED or self.state == BubbleState.TOUCHED:
@@ -304,6 +302,16 @@ def detect_touch(hand_landmarks):
     index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
     return index_tip.x, index_tip.y
 
+def get_available_camera_index(max_index=5):
+    """Automatically detect the first available camera index"""
+    for i in range(max_index):
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            cap.release()
+            return i
+        cap.release()
+    return None
+
 def main():
     st.set_page_config(page_title="Realistic Bubble Wrap", layout="wide")
     
@@ -359,7 +367,13 @@ def main():
         FRAME_WINDOW = st.image([])
         
         if run:
-            cap = cv2.VideoCapture(0)
+            # Automatically detect camera index
+            camera_index = get_available_camera_index(max_index=5)
+            if camera_index is None:
+                st.error("No camera found. Please check your camera connections or drivers.")
+                return
+            
+            cap = cv2.VideoCapture(camera_index)
             if not cap.isOpened():
                 st.error("Camera not found. Please check your camera settings.")
                 return
@@ -371,7 +385,6 @@ def main():
                 min_tracking_confidence=0.5,
                 max_num_hands=1
             ) as hands:
-                
                 previous_pinch = False
                 
                 while run:
