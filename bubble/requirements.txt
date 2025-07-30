@@ -1,5 +1,5 @@
-streamlit
-opencv-python-headless
-mediapipe
-numpy
-pygame
+streamlit==1.36.0
+opencv-python-headless==4.9.0.80
+mediapipe==0.10.14
+numpy==1.26.4
+pygame==2.5.2
