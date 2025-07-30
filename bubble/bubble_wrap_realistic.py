@@ -355,6 +355,7 @@ def main():
             st.session_state.touched_bubbles.clear()
 
     with col1:
+        # This is where the change needs to be!
         # Replaced st.checkbox with st.camera_input
         # 'use_front_camera=True' is ideal for mobile to default to selfie cam
         camera_input = st.camera_input("Take a picture or use live camera feed", use_front_camera=True)
@@ -461,7 +462,7 @@ def main():
 
                     # Visual feedback for pinch
                     cv2.circle(frame, (pinch_x, pinch_y), 20, (100, 255, 100), 2)
-                
+
                 # If pinch is released, reset pinching status
                 if not pinch_result and st.session_state.is_pinching:
                     st.session_state.is_pinching = False
@@ -487,7 +488,6 @@ def main():
             cv2.putText(placeholder_frame, "Waiting for camera input...",
                         (250, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
             st.image(placeholder_frame, channels="BGR", use_container_width=True)
-
 
 if __name__ == "__main__":
     main()
